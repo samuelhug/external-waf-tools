@@ -16,22 +16,27 @@ def configure(ctx):
 
 def build(ctx):
     ctx.load('less')
-    ctx(source=ctx.path.find_node('test.less'))
+    ctx(features='less', source=ctx.path.find_node('test.less'))
 
 ===========================================================
 """
-from waflib.Configure import conf
-from waflib import TaskGen
+from waflib import Task
+from waflib.TaskGen import feature, extension
 
 def configure(ctx):
-    ctx.less_configure()
-
-@conf
-def less_configure(ctx):
     ctx.find_program('lessc', var='LESSC')
 
-TaskGen.declare_chain(name='less',
-        rule='${LESSC} ${SRC} ${TGT}',
-        ext_in='.less', ext_out='.css',
-        color='BLUE',
-    )
+@extension('.less')
+def less_hook(self, node):
+    pass
+
+@feature('less')
+def compile_less(self):
+    """Create a lessc task"""
+    target = self.target or self.source.get_bld().change_ext('.css')
+    self.create_task('lessc', self.source, [target])
+
+class lessc(Task.Task):
+    """Compiles .less files """
+    color   = 'YELLOW'
+    run_str = '${LESSC} ${SRC} ${TGT}'
