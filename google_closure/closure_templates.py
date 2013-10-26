@@ -11,7 +11,7 @@ def options(ctx):
 def configure(ctx):
     ctx.load('google_closure')
 
-    templates_node = ctx.path.find_node(ctx.env.CLOSURE_TOOLS).find_node('closure-templates')
+    templates_node = ctx.root.find_node(ctx.env.CLOSURE_TOOLS).find_node('closure-templates')
     if not templates_node:
         ctx.fatal('Unable to locate the closure templates root directory.')
     ctx.env.CLOSURE_TEMPLATES_ROOT = templates_node.abspath()

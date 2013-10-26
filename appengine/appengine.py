@@ -117,8 +117,8 @@ def find_appengine_app(ctx, path='.'):
     if not yaml:
         ctx.fatal('Unable to locate application YAML in ({0})'.format(app_root.nice_path()))
 
-    ctx.env.APPENGINE_APP_ROOT = app_root.relpath()
-    ctx.env.APPENGINE_APP_YAML = yaml.relpath()
+    ctx.env.APPENGINE_APP_ROOT = app_root.abspath()
+    ctx.env.APPENGINE_APP_YAML = yaml.abspath()
 
 
 def options(ctx):
@@ -140,7 +140,7 @@ def deploy(ctx):
 
     print('Deploying Application to AppEngine...')
 
-    app_root = ctx.path.find_dir(ctx.env.APPENGINE_APP_ROOT)
+    app_root = ctx.root.find_dir(ctx.env.APPENGINE_APP_ROOT)
     if not app_root:
         ctx.fatal('Unable to locate application directory ({0})'.format(ctx.env.APPENGINE_APP_ROOT))
 
@@ -164,7 +164,7 @@ def serve(ctx):
 
     print('Starting Development Server...')
 
-    app_root = ctx.path.find_dir(ctx.env.APPENGINE_APP_ROOT)
+    app_root = ctx.root.find_dir(ctx.env.APPENGINE_APP_ROOT)
     if not app_root:
         ctx.fatal('Unable to locate application directory ({0})'.format(ctx.env.APPENGINE_APP_ROOT))
 

@@ -14,10 +14,10 @@ def configure(ctx):
     ctx.load('google_closure')
 
     # Locate closure compiler
-    closure_compiler_node = ctx.path.find_node(ctx.env.CLOSURE_TOOLS).find_node('closure-compiler/compiler.jar')
+    closure_compiler_node = ctx.root.find_node(ctx.env.CLOSURE_TOOLS).find_node('closure-compiler/compiler.jar')
     if not closure_compiler_node:
         ctx.fatal('Unable to locate the closure compiler jar.')
-    ctx.env.CLOSURE_COMPILER_JAR = closure_compiler_node.relpath()
+    ctx.env.CLOSURE_COMPILER_JAR = closure_compiler_node.abspath()
 
     ctx.find_program('java', var='JAVA')
 
@@ -32,7 +32,7 @@ class closure_compiler_task(Task.Task):
     def __init__(self, namespaces, roots, target, inputs=None, compile_type=None, compiler_flags=[], *k, **kw):
         Task.Task.__init__(self, *k, **kw)
 
-        sys.path.append(ctx.path.find_node(self.env.CLOSURE_SCRIPTS).abspath())
+        sys.path.append(self.env.CLOSURE_SCRIPTS)
 
         self.depstree = __import__('depstree')
         self.treescan = __import__('treescan')
@@ -59,19 +59,16 @@ class closure_compiler_task(Task.Task):
         else:
             raise Execption('Unrecognized compile_type ({0})'.format(compile_type))
 
-        closure_library_node = ctx.path.find_node(self.env.CLOSURE_LIBRARY)
-
         # Set the default compliation roots
         self.roots = [
-            os.path.join(closure_library_node.abspath(), 'closure/goog'),
-            os.path.join(closure_library_node.abspath(), 'third_party/closure/goog')
+            os.path.join(self.env.CLOSURE_LIBRARY, 'closure/goog'),
+            os.path.join(self.env.CLOSURE_LIBRARY, 'third_party/closure/goog')
         ]
         
         self.roots += roots
 
     def jscompiler(self):
-        closure_compiler_node = ctx.path.find_node(self.env.CLOSURE_COMPILER_JAR)
-        args = [self.env.JAVA, '-jar', closure_compiler_node.abspath()]
+        args = [self.env.JAVA, '-jar', self.env.CLOSURE_COMPILER_JAR]
 
         for node in self.inputs:
             args += ['--js', node.abspath()]
