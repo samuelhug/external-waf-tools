@@ -104,7 +104,12 @@ def find_appengine_sdk(ctx, api, version=None, api_version=None, path_list=None)
 
 @conf
 def find_appengine_app(ctx, path='.'):
-    app_root = ctx.path.find_dir(path)
+
+    if isinstance(path, basestring):
+        app_root = ctx.path.find_dir(path)
+    else:
+        app_root = path
+
     if not app_root:
         ctx.fatal('Unable to locate application directory ({0})'.format(path))
 
@@ -112,8 +117,8 @@ def find_appengine_app(ctx, path='.'):
     if not yaml:
         ctx.fatal('Unable to locate application YAML in ({0})'.format(app_root.nice_path()))
 
-    ctx.env.APPENGINE_APP_ROOT = app_root.abspath()
-    ctx.env.APPENGINE_APP_YAML = yaml.abspath()
+    ctx.env.APPENGINE_APP_ROOT = app_root.relpath()
+    ctx.env.APPENGINE_APP_YAML = yaml.relpath()
 
 
 def options(ctx):
@@ -135,7 +140,7 @@ def deploy(ctx):
 
     print('Deploying Application to AppEngine...')
 
-    app_root = ctx.root.find_dir(ctx.env.APPENGINE_APP_ROOT)
+    app_root = ctx.path.find_dir(ctx.env.APPENGINE_APP_ROOT)
     if not app_root:
         ctx.fatal('Unable to locate application directory ({0})'.format(ctx.env.APPENGINE_APP_ROOT))
 
@@ -159,7 +164,7 @@ def serve(ctx):
 
     print('Starting Development Server...')
 
-    app_root = ctx.root.find_dir(ctx.env.APPENGINE_APP_ROOT)
+    app_root = ctx.path.find_dir(ctx.env.APPENGINE_APP_ROOT)
     if not app_root:
         ctx.fatal('Unable to locate application directory ({0})'.format(ctx.env.APPENGINE_APP_ROOT))
 
@@ -168,8 +173,8 @@ def serve(ctx):
             #app_root.abspath(),
         ]
 
-    if not ctx.options.port is None:
-        cmd += ['--port', str(ctx.options.port)]
+    #if not ctx.options.port is None:
+    #    cmd += ['--port', str(ctx.options.port)]
 
     proc = Popen(cmd)
 
