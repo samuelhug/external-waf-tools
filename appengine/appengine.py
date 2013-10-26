@@ -115,7 +115,24 @@ def find_appengine_app(ctx, path='.'):
     ctx.env.APPENGINE_APP_ROOT = app_root.abspath()
     ctx.env.APPENGINE_APP_YAML = yaml.abspath()
 
+
+def options(ctx):
+    ctx.add_option('--devserver-port', action='store',
+                    help='Port for local development server')
+
+    ctx.load('python')
+    ctx.load('wurf_tools')
+
+def configure(ctx):
+    ctx.load('python')
+    ctx.load('wurf_tools')
+
+    ctx.load_external_tool('utils', 'utils')
+
 def deploy(ctx):
+    ctx.load('python')
+    ctx.load('wurf_tools')
+
     print('Deploying Application to AppEngine...')
 
     app_root = ctx.root.find_dir(ctx.env.APPENGINE_APP_ROOT)
@@ -137,6 +154,9 @@ def deploy(ctx):
         proc.terminate()
 
 def serve(ctx):
+    ctx.load('python')
+    ctx.load('wurf_tools')
+
     print('Starting Development Server...')
 
     app_root = ctx.root.find_dir(ctx.env.APPENGINE_APP_ROOT)
@@ -159,16 +179,6 @@ def serve(ctx):
         Logs.pprint('RED', 'Development Server Interrupted... Shutting Down')
         proc.terminate()
 
-def options(ctx):
-    ctx.add_option('--port', action='store',
-                    help='Port for local development server')
-
-    ctx.load('python')
-    ctx.load('utils', tooldir='tools')
-
-def configure(ctx):
-    ctx.load('python')
-    ctx.load('utils', tooldir='tools')
 
 Context.g_module.__dict__['deploy'] = deploy
 Context.g_module.__dict__['serve'] = serve
